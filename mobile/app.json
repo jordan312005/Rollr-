@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Rollr",
+    "slug": "rollr",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "rollr",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Rollr uses your camera so you can attach a photo of the problem to your repair request.",
+        "NSPhotoLibraryUsageDescription": "Rollr needs photo access so you can attach an image to your repair request.",
+        "NSLocationWhenInUseUsageDescription": "Rollr uses your location so a mechanic can find you for your repair."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Rollr needs photo access so you can attach an image to your repair request.",
+          "cameraPermission": "Rollr uses your camera so you can attach a photo of the problem to your repair request."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Rollr uses your location so a mechanic can find you for your repair."
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Env / secrets
+.env
+.env.local
+.env*.local
+
+# Expo
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/expo-env.d.ts
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.*
+
+# OS
+.DS_Store
+*.pem
