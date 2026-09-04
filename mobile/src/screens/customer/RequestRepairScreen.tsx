@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ScreenContainer } from '../../components/ScreenContainer';
 import { TextField } from '../../components/TextField';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { useAuth } from '../../hooks/useAuth';
 import { VEHICLE_TYPES } from '../../config/vehicleTypes';
 import { createJob, uploadJobPhoto } from '../../services/jobs';
@@ -13,6 +15,15 @@ import { colors, radius, spacing } from '../../theme';
 import type { CustomerStackParamList } from '../../navigation/types';
 
 type Props = NativeStackScreenProps<CustomerStackParamList, 'RequestRepair'>;
+
+// The shared VEHICLE_TYPES config carries an emoji `icon` (mirrored with the
+// backend); the app renders its own icon set instead, keyed off the same type.
+const VEHICLE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  bicycle: 'bike',
+  ebike: 'battery-charging',
+  escooter: 'scooter',
+  other: 'wrench',
+};
 
 export function RequestRepairScreen({ navigation }: Props) {
   const { api } = useAuth();
@@ -101,7 +112,11 @@ export function RequestRepairScreen({ navigation }: Props) {
               onPress={() => setVehicleType(vt.key)}
               style={[styles.vehicleCard, selected && styles.vehicleCardSelected]}
             >
-              <Text style={styles.vehicleIcon}>{vt.icon}</Text>
+              <MaterialCommunityIcons
+                name={VEHICLE_ICONS[vt.key] ?? 'wrench'}
+                size={28}
+                color={selected ? colors.primaryBright : colors.muted}
+              />
               <Text style={[styles.vehicleLabel, selected && styles.vehicleLabelSelected]}>{vt.label}</Text>
             </Pressable>
           );
@@ -122,19 +137,34 @@ export function RequestRepairScreen({ navigation }: Props) {
       <Text style={styles.label}>Photo (optional)</Text>
       {photoUri && <Image source={{ uri: photoUri }} style={styles.preview} />}
       <View style={styles.rowButtons}>
-        <Button title="📷 Camera" variant="secondary" onPress={takePhoto} style={styles.halfBtn} />
-        <Button title="🖼️ Library" variant="secondary" onPress={pickFromLibrary} style={styles.halfBtn} />
+        <Button
+          title="Camera"
+          variant="secondary"
+          icon={<Feather name="camera" size={16} color={colors.primaryBright} />}
+          onPress={takePhoto}
+          style={styles.halfBtn}
+        />
+        <Button
+          title="Library"
+          variant="secondary"
+          icon={<Feather name="image" size={16} color={colors.primaryBright} />}
+          onPress={pickFromLibrary}
+          style={styles.halfBtn}
+        />
       </View>
       {photoUri && (
         <Button title="Remove photo" variant="ghost" onPress={() => setPhotoUri(null)} />
       )}
 
       <Text style={styles.label}>Your location</Text>
-      <View style={styles.locationCard}>
+      <Card style={styles.locationCard}>
         {location ? (
-          <Text style={styles.locationText}>
-            📍 {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-          </Text>
+          <View style={styles.locationRow}>
+            <Feather name="map-pin" size={14} color={colors.text} />
+            <Text style={styles.locationText}>
+              {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+            </Text>
+          </View>
         ) : (
           <Text style={styles.locationMuted}>Not attached yet</Text>
         )}
@@ -144,11 +174,11 @@ export function RequestRepairScreen({ navigation }: Props) {
           loading={locating}
           onPress={detectLocation}
         />
-      </View>
+      </Card>
 
       <View style={{ height: spacing(2) }} />
       <Button title="Submit Request" onPress={onSubmit} loading={submitting} />
-      {submitting && <ActivityIndicator style={{ marginTop: spacing(1) }} color={colors.primary} />}
+      {submitting && <ActivityIndicator style={{ marginTop: spacing(1) }} color={colors.primaryBright} />}
     </ScreenContainer>
   );
 }
@@ -158,22 +188,22 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1.5) },
   vehicleCard: {
     width: '47%',
-    backgroundColor: colors.card,
+    backgroundColor: colors.surface,
     borderWidth: 1.5,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingVertical: spacing(2),
     alignItems: 'center',
   },
-  vehicleCardSelected: { borderColor: colors.primary, backgroundColor: '#EFF6FF' },
-  vehicleIcon: { fontSize: 32 },
-  vehicleLabel: { fontSize: 14, fontWeight: '600', color: colors.text, marginTop: spacing(0.5) },
-  vehicleLabelSelected: { color: colors.primary },
+  vehicleCardSelected: { borderColor: colors.primaryBright, backgroundColor: colors.primary + '1A' },
+  vehicleLabel: { fontSize: 14, fontWeight: '600', color: colors.text, marginTop: spacing(1) },
+  vehicleLabelSelected: { color: colors.primaryBright },
   textArea: { minHeight: 100, textAlignVertical: 'top' },
   preview: { width: '100%', height: 200, borderRadius: radius.md, marginBottom: spacing(1) },
   rowButtons: { flexDirection: 'row', gap: spacing(1.5) },
   halfBtn: { flex: 1 },
-  locationCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing(2) },
+  locationCard: { padding: spacing(2) },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(0.75) },
   locationText: { fontSize: 15, color: colors.text, fontWeight: '600' },
   locationMuted: { fontSize: 15, color: colors.muted },
 });

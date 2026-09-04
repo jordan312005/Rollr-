@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors, spacing, STATUS_STEPS, statusMeta } from '../theme';
 
 // Visual Pending → Accepted → In Progress → Completed tracker.
@@ -22,10 +23,12 @@ export function StatusTracker({ status }: { status: string }) {
         return (
           <React.Fragment key={step}>
             <View style={styles.step}>
-              <View style={[styles.circle, { backgroundColor: done ? color : colors.white, borderColor: color }]}>
-                <Text style={[styles.circleText, { color: done ? colors.white : colors.muted }]}>
-                  {done ? '✓' : i + 1}
-                </Text>
+              <View style={[styles.circle, { backgroundColor: done ? color : 'transparent', borderColor: color }]}>
+                {done ? (
+                  <Feather name="check" size={13} color={colors.white} />
+                ) : (
+                  <Text style={styles.circleText}>{i + 1}</Text>
+                )}
               </View>
               <Text style={[styles.stepLabel, active && styles.stepLabelActive]} numberOfLines={1}>
                 {statusMeta[step].label}
@@ -52,10 +55,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  circleText: { fontSize: 14, fontWeight: '700' },
+  circleText: { fontSize: 14, fontWeight: '700', color: colors.muted },
   stepLabel: { fontSize: 11, color: colors.muted, marginTop: spacing(0.5), textAlign: 'center' },
   stepLabelActive: { color: colors.text, fontWeight: '700' },
   connector: { height: 2, flex: 1, marginTop: 16 },
-  cancelled: { padding: spacing(1.5), backgroundColor: colors.border, borderRadius: 8 },
+  cancelled: { padding: spacing(1.5), backgroundColor: colors.surface, borderRadius: 10, borderWidth: 1, borderColor: colors.border },
   cancelledText: { color: colors.muted, fontWeight: '600', textAlign: 'center' },
 });

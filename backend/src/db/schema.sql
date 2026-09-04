@@ -114,6 +114,54 @@ do $$ begin
     for each row execute function set_updated_at();
 exception when duplicate_object then null; end $$;
 
+-- ──────────────────────────────────────────────────────────────────────────
+-- Phase 3 — Realtime + Row Level Security on jobs
+--
+-- The backend writes to `jobs` via the pooler using a role that BYPASSES RLS,
+-- so these policies do NOT affect the API. They exist purely so Supabase
+-- Realtime (postgres_changes) can deliver row events to the right *clients*:
+--   • customers receive changes to their own jobs (live status updates)
+--   • mechanics receive open (pending) jobs + jobs assigned to them
+-- The app uses these events as a trigger to refetch from the backend (the
+-- source of truth), so realtime is a live-refresh signal, not a data path.
+-- ──────────────────────────────────────────────────────────────────────────
+
+alter table jobs enable row level security;
+
+-- A customer can see their own jobs.
+do $$ begin
+  create policy jobs_select_own_customer on jobs
+    for select to authenticated
+    using (customer_id = auth.uid());
+exception when duplicate_object then null; end $$;
+
+-- A mechanic can see open (unassigned, pending) jobs and any job assigned to them.
+do $$ begin
+  create policy jobs_select_for_mechanic on jobs
+    for select to authenticated
+    using (
+      (status = 'pending' and mechanic_id is null and exists (
+        select 1 from users u join roles r on r.id = u.role_id
+        where u.id = auth.uid() and r.name = 'mechanic'
+      ))
+      or mechanic_id = auth.uid()
+    );
+exception when duplicate_object then null; end $$;
+
+-- Add `jobs` to the Supabase Realtime publication (idempotent).
+do $$ begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'jobs'
+  ) then
+    alter publication supabase_realtime add table jobs;
+  end if;
+exception when undefined_object then
+  -- publication doesn't exist (non-Supabase Postgres) — realtime simply won't
+  -- be available; the app falls back to polling.
+  null;
+end $$;
+
 -- SEED ROLES (idempotent) ---------------------------------------------------
 insert into roles (name) values ('customer'), ('mechanic'), ('admin')
 on conflict (name) do nothing;

@@ -13,7 +13,7 @@ router.get('/', jobsController.list);             // history of my jobs
 router.get('/:id', jobsController.getOne);        // one job (must be mine)
 router.post('/:id/cancel', jobsController.cancel);// cancel (pending only)
 
-// TODO(Phase 3 — Mechanic flow): mount mechanic routes (accept / update status)
-//   under authorize('mechanic'), e.g. routes/mechanic.jobs.routes.js
+// Phase 3 — Mechanic flow lives in routes/mechanic.jobs.routes.js
+//   (mounted at /api/mechanic/jobs under authorize('mechanic')).
 
 export default router;

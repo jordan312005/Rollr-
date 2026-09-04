@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { useAuth } from '../hooks/useAuth';
@@ -14,16 +14,16 @@ import type {
 
 // Auth screens
 import { WelcomeScreen } from '../screens/auth/WelcomeScreen';
-import { CustomerLoginScreen } from '../screens/auth/CustomerLoginScreen';
+import { SignInScreen } from '../screens/auth/SignInScreen';
 import { CustomerRegisterScreen } from '../screens/auth/CustomerRegisterScreen';
-import { MechanicLoginScreen } from '../screens/auth/MechanicLoginScreen';
-import { AdminLoginScreen } from '../screens/auth/AdminLoginScreen';
 
 // Role home screens
 import { CustomerHomeScreen } from '../screens/customer/CustomerHomeScreen';
 import { RequestRepairScreen } from '../screens/customer/RequestRepairScreen';
 import { JobStatusScreen } from '../screens/customer/JobStatusScreen';
 import { MechanicHomeScreen } from '../screens/mechanic/MechanicHomeScreen';
+import { JobFeedScreen } from '../screens/mechanic/JobFeedScreen';
+import { JobDetailScreen } from '../screens/mechanic/JobDetailScreen';
 import { AdminHomeScreen } from '../screens/admin/AdminHomeScreen';
 
 const Auth = createNativeStackNavigator<AuthStackParamList>();
@@ -32,19 +32,30 @@ const Mechanic = createNativeStackNavigator<MechanicStackParamList>();
 const Admin = createNativeStackNavigator<AdminStackParamList>();
 
 const headerStyle = {
-  headerStyle: { backgroundColor: colors.primary },
-  headerTintColor: colors.white,
-  headerTitleStyle: { fontWeight: '700' as const },
+  headerStyle: { backgroundColor: colors.bg },
+  headerTintColor: colors.text,
+  headerTitleStyle: { fontWeight: '700' as const, color: colors.text },
+  headerShadowVisible: false,
+};
+
+const navTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: colors.primaryBright,
+    background: colors.bg,
+    card: colors.bg,
+    text: colors.text,
+    border: colors.border,
+  },
 };
 
 function AuthStack() {
   return (
     <Auth.Navigator screenOptions={headerStyle}>
       <Auth.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-      <Auth.Screen name="CustomerLogin" component={CustomerLoginScreen} options={{ title: 'Customer Sign In' }} />
+      <Auth.Screen name="SignIn" component={SignInScreen} options={{ title: 'Sign In' }} />
       <Auth.Screen name="CustomerRegister" component={CustomerRegisterScreen} options={{ title: 'Create Account' }} />
-      <Auth.Screen name="MechanicLogin" component={MechanicLoginScreen} options={{ title: 'Mechanic Sign In' }} />
-      <Auth.Screen name="AdminLogin" component={AdminLoginScreen} options={{ title: 'Admin Sign In' }} />
     </Auth.Navigator>
   );
 }
@@ -63,6 +74,8 @@ function MechanicStack() {
   return (
     <Mechanic.Navigator screenOptions={headerStyle}>
       <Mechanic.Screen name="MechanicHome" component={MechanicHomeScreen} options={{ title: 'Rollr — Mechanic' }} />
+      <Mechanic.Screen name="JobFeed" component={JobFeedScreen} options={{ title: 'Open Requests' }} />
+      <Mechanic.Screen name="JobDetail" component={JobDetailScreen} options={{ title: 'Job Detail' }} />
     </Mechanic.Navigator>
   );
 }
@@ -81,13 +94,13 @@ export function RootNavigator() {
   if (status === 'loading') {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primaryBright} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       {!user ? (
         <AuthStack />
       ) : user.role === 'customer' ? (

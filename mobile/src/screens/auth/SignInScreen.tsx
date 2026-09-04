@@ -8,10 +8,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { colors, spacing } from '../../theme';
 import type { AuthStackParamList } from '../../navigation/types';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'MechanicLogin'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
 
-export function MechanicLoginScreen(_props: Props) {
-  const { signInMechanic } = useAuth();
+// One sign-in screen for every role — no role picker. `signIn` figures out
+// which account this is, and RootNavigator routes by the role it returns.
+export function SignInScreen({ navigation }: Props) {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,8 @@ export function MechanicLoginScreen(_props: Props) {
     if (!email || !password) return Alert.alert('Missing info', 'Enter your email and password.');
     setLoading(true);
     try {
-      await signInMechanic(email.trim(), password);
+      await signIn(email.trim(), password);
+      // On success, RootNavigator swaps to the right stack automatically.
     } catch (e: any) {
       Alert.alert('Sign in failed', e.message);
     } finally {
@@ -30,25 +33,32 @@ export function MechanicLoginScreen(_props: Props) {
 
   return (
     <ScreenContainer scroll>
-      <Text style={styles.heading}>Mechanic Sign In</Text>
-      <Text style={styles.note}>
-        Mechanic accounts are issued by a Rollr admin. There is no self-signup.
-      </Text>
+      <Text style={styles.heading}>Welcome back</Text>
       <TextField
         label="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        placeholder="mechanic@rollr.test"
+        placeholder="you@school.edu"
       />
-      <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry placeholder="••••••••" />
+      <TextField
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        placeholder="••••••••"
+      />
       <Button title="Sign In" onPress={onSubmit} loading={loading} />
+      <Button
+        title="New here? Create an account"
+        variant="ghost"
+        onPress={() => navigation.navigate('CustomerRegister')}
+      />
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  heading: { fontSize: 24, fontWeight: '800', color: colors.text, marginBottom: spacing(1) },
-  note: { fontSize: 14, color: colors.muted, marginBottom: spacing(2) },
+  heading: { fontSize: 24, fontWeight: '800', color: colors.text, marginBottom: spacing(2) },
 });

@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   wrap: { marginBottom: spacing(1.5) },
   label: { fontSize: 13, fontWeight: '600', color: colors.muted, marginBottom: spacing(0.5) },
   input: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,

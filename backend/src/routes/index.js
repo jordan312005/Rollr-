@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes.js';
 import jobsRoutes from './jobs.routes.js';
+import mechanicJobsRoutes from './mechanic.jobs.routes.js';
 import { VEHICLE_TYPES } from '../config/vehicleTypes.js';
 
 const router = Router();
@@ -12,5 +13,6 @@ router.get('/vehicle-types', (req, res) => res.json({ vehicleTypes: VEHICLE_TYPE
 
 router.use('/auth', authRoutes);
 router.use('/jobs', jobsRoutes);
+router.use('/mechanic/jobs', mechanicJobsRoutes);
 
 export default router;

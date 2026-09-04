@@ -2,10 +2,8 @@
 
 export type AuthStackParamList = {
   Welcome: undefined;
-  CustomerLogin: undefined;
+  SignIn: undefined;
   CustomerRegister: undefined;
-  MechanicLogin: undefined;
-  AdminLogin: undefined;
 };
 
 export type CustomerStackParamList = {
@@ -16,6 +14,8 @@ export type CustomerStackParamList = {
 
 export type MechanicStackParamList = {
   MechanicHome: undefined;
+  JobFeed: undefined;
+  JobDetail: { jobId: string };
 };
 
 export type AdminStackParamList = {

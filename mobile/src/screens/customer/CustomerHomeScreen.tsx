@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ScreenContainer } from '../../components/ScreenContainer';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { StatusBadge } from '../../components/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { getActiveJob, type Job } from '../../services/jobs';
@@ -42,17 +43,17 @@ export function CustomerHomeScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer scroll>
-      <Text style={styles.greeting}>Hi {user?.fullName || 'there'} 👋</Text>
+      <Text style={styles.greeting}>Hi {user?.fullName || 'there'}</Text>
       <Text style={styles.sub}>{user?.email}</Text>
 
       {loading ? (
-        <ActivityIndicator style={{ marginTop: spacing(4) }} size="large" color={colors.primary} />
+        <ActivityIndicator style={{ marginTop: spacing(4) }} size="large" color={colors.primaryBright} />
       ) : error ? (
         <View style={styles.errorCard}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : activeJob ? (
-        <View style={styles.card}>
+        <Card>
           <Text style={styles.cardTitle}>Your active request</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.vehicle}>{activeJob.vehicleLabel}</Text>
@@ -62,13 +63,13 @@ export function CustomerHomeScreen({ navigation }: Props) {
             {activeJob.description}
           </Text>
           <Button title="View status" onPress={() => navigation.navigate('JobStatus', { jobId: activeJob.id })} />
-        </View>
+        </Card>
       ) : (
-        <View style={styles.card}>
+        <Card>
           <Text style={styles.cardTitle}>No active requests</Text>
           <Text style={styles.desc}>Stuck with a flat or a dead battery? Get a mechanic to come to you.</Text>
           <Button title="Request Repair" onPress={() => navigation.navigate('RequestRepair')} />
-        </View>
+        </Card>
       )}
 
       <View style={{ height: spacing(4) }} />
@@ -80,11 +81,10 @@ export function CustomerHomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   greeting: { fontSize: 26, fontWeight: '800', color: colors.text },
   sub: { fontSize: 14, color: colors.muted, marginTop: spacing(0.25), marginBottom: spacing(3) },
-  card: { backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing(2.5), borderWidth: 1, borderColor: colors.border },
   cardTitle: { fontSize: 14, fontWeight: '700', color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: spacing(1) },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   vehicle: { fontSize: 20, fontWeight: '700', color: colors.text },
   desc: { fontSize: 15, color: colors.text, marginTop: spacing(1), lineHeight: 21 },
-  errorCard: { backgroundColor: '#FEE2E2', borderRadius: radius.md, padding: spacing(2), marginTop: spacing(2) },
+  errorCard: { backgroundColor: colors.danger + '1A', borderWidth: 1, borderColor: colors.danger, borderRadius: radius.md, padding: spacing(2), marginTop: spacing(2) },
   errorText: { color: colors.danger, fontSize: 14 },
 });

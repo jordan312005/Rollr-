@@ -1,10 +1,12 @@
-// Auth context — manages all three roles (customer, mechanic, admin).
+// Auth context — a single sign-in flow for all three roles.
 //
 //  • Customer / Mechanic → authenticate against Supabase (email + password).
 //  • Admin               → authenticate against the backend (hardcoded creds),
 //                          which returns a backend-signed JWT stored locally.
 //
-// The role is always confirmed by calling the backend GET /api/auth/me.
+// There is no role picker: `signIn` tries Supabase first, then falls back to
+// the admin endpoint, and the role is always read back from the backend
+// (GET /api/auth/me) rather than assumed from which screen the user came from.
 import React, {
   createContext,
   useContext,
@@ -27,9 +29,7 @@ type AuthContextValue = {
   user: AppUser | null;
   api: ApiClient;
   registerCustomer: (email: string, password: string, fullName: string) => Promise<void>;
-  signInCustomer: (email: string, password: string) => Promise<void>;
-  signInMechanic: (email: string, password: string) => Promise<void>;
-  signInAdmin: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -91,38 +91,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const signInCustomer = async (email: string, password: string) => {
+  // Single entry point for every role. No role is chosen up front — we try
+  // Supabase (customer/mechanic) first, then fall back to the admin endpoint,
+  // and let the backend tell us who the account actually belongs to.
+  const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
-    setUser(await fetchProfile());
+    if (!error) {
+      setUser(await fetchProfile());
+      return;
+    }
+
+    try {
+      const { token, user: adminUser } = await api.post<{ token: string; user: AppUser }>(
+        '/auth/admin/login',
+        { email, password }
+      );
+      adminTokenRef.current = token;
+      await AsyncStorage.setItem(ADMIN_TOKEN_KEY, token);
+      setUser({ ...adminUser, role: 'admin' });
+    } catch {
+      throw new Error('Invalid email or password');
+    }
   };
 
   const registerCustomer = async (email: string, password: string, fullName: string) => {
     // Backend creates the Supabase auth user + users row (role=customer)…
     await api.post('/auth/register', { email, password, fullName });
     // …then sign in normally.
-    await signInCustomer(email, password);
-  };
-
-  const signInMechanic = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
-    const profile = await fetchProfile();
-    if (profile.role !== 'mechanic') {
-      await supabase.auth.signOut();
-      throw new Error('This is not a mechanic account. Contact your Rollr admin.');
-    }
-    setUser(profile);
-  };
-
-  const signInAdmin = async (email: string, password: string) => {
-    const { token, user: adminUser } = await api.post<{ token: string; user: AppUser }>(
-      '/auth/admin/login',
-      { email, password }
-    );
-    adminTokenRef.current = token;
-    await AsyncStorage.setItem(ADMIN_TOKEN_KEY, token);
-    setUser({ ...adminUser, role: 'admin' });
+    await signIn(email, password);
   };
 
   const signOut = async () => {
@@ -137,9 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     api,
     registerCustomer,
-    signInCustomer,
-    signInMechanic,
-    signInAdmin,
+    signIn,
     signOut,
   };
 
