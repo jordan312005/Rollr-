@@ -46,7 +46,8 @@
           "locationWhenInUsePermission": "Rollr uses your location so a mechanic can find you for your repair."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-status-bar"
     ]
   }
 }
