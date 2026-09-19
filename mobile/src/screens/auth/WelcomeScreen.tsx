@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ScreenContainer } from '../../components/ScreenContainer';
@@ -14,10 +14,7 @@ export function WelcomeScreen({ navigation }: Props) {
   return (
     <ScreenContainer style={styles.container}>
       <View style={styles.hero}>
-        <View style={styles.lockup}>
-          <Feather name="settings" size={36} color={colors.primary} />
-          <Text style={styles.logo}>rollr</Text>
-        </View>
+        <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
         <Text style={styles.tagline}>On-demand repair for bikes & scooters, right on campus.</Text>
       </View>
 
@@ -45,8 +42,7 @@ export function WelcomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center' },
   hero: { alignItems: 'center', marginBottom: spacing(5) },
-  lockup: { alignItems: 'center', gap: spacing(1) },
-  logo: { fontSize: 34, fontWeight: '600', color: colors.text, letterSpacing: 0.3 },
+  logo: { width: 220, height: 147 },
   tagline: { fontSize: 16, color: colors.muted, textAlign: 'center', marginTop: spacing(1.5), paddingHorizontal: spacing(2) },
   actions: { gap: spacing(0.5) },
   warn: {

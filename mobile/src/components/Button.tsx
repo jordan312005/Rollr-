@@ -1,7 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients, radius, spacing } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -25,6 +24,7 @@ export function Button({ title, onPress, variant = 'primary', icon, loading, dis
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
+        variant === 'primary' && styles.primary,
         variant !== 'primary' && variantStyles[variant],
         isFilled && styles.glow,
         isDisabled && styles.disabled,
@@ -32,14 +32,6 @@ export function Button({ title, onPress, variant = 'primary', icon, loading, dis
         style,
       ]}
     >
-      {variant === 'primary' && (
-        <LinearGradient
-          colors={gradients.primaryButton}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-      )}
       <View style={styles.content}>
         {loading ? (
           <ActivityIndicator color={isFilled ? colors.white : variant === 'ghost' ? colors.muted : colors.primaryBright} />
@@ -80,6 +72,7 @@ const styles = StyleSheet.create({
   text: { color: colors.white, fontSize: 16, fontWeight: '700' },
   textAccent: { color: colors.primaryBright },
   textGhost: { color: colors.muted, fontWeight: '500' },
+  primary: { backgroundColor: colors.primaryBright },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.85 },
   glow: {

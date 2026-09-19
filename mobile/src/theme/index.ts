@@ -39,7 +39,6 @@ export const colors = {
 
 export const gradients = {
   surface: [colors.surfaceTop, colors.surfaceBottom] as const,
-  primaryButton: [colors.primaryBright, colors.primary] as const,
 };
 
 export const spacing = (n: number) => n * 8;
